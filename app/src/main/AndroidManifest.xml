@@ -3,7 +3,7 @@
     package="com.wexberry.incomingcall">
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-
+    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
 
     <uses-feature android:name="android.hardware.telephony"/>
     <uses-feature android:name="android.hardware.telephony.cdma"/>
@@ -24,7 +24,7 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".receiver.PhoneStateChangedReceiver" >
+        <receiver android:name=".receiver.PhoneStateChangedReceiver" android:exported="true" android:enabled="true" >
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>

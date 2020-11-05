@@ -7,6 +7,7 @@ import android.content.Context
 import android.content.Intent
 import android.telephony.TelephonyManager
 import android.util.Log
+import android.widget.Toast
 import androidx.core.app.NotificationCompat
 import androidx.core.app.NotificationManagerCompat
 import com.wexberry.incomingcall.MainActivity
@@ -29,13 +30,16 @@ open class PhoneStateChangedReceiver : BroadcastReceiver() {
                     p1.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
                         .toString() // Получаем входящий номер
 
-                // - - - Код - кретина. Тут должна быть работа с БД - - -
+                // - - - Тут должна быть работа с БД - - -
                 var name: String = when (incoming_number) {
                     p0?.getString(R.string.number_dmitry) -> p0.getString(R.string.name_dmitry)
                     p0?.getString(R.string.number_ekaterina) -> p0.getString(R.string.name_ekaterina)
                     else -> "Неизвестный номер"
                 }
 
+                Toast.makeText(p0, "Тебе звонит: $name", Toast.LENGTH_LONG).show()
+
+                // - - - Отправка пуша - - -
                 // При нажатии на уведомление, будем запускать MainActivity
                 val notificationIntent = Intent(p0, MainActivity::class.java)
                 val contentIntent = PendingIntent.getActivity(
@@ -51,7 +55,7 @@ open class PhoneStateChangedReceiver : BroadcastReceiver() {
                         .setColor(p0.resources.getColor(R.color.black)) // Цвет иконки и названия приложения в уведомлении
                         .setContentTitle(name) // Заголовок уведомления
                         .setContentText(incoming_number) // Текст в уведомлении
-                        .setPriority(NotificationCompat.PRIORITY_HIGH) // Приоритет HIGH позволяет показывать всплывающее уведомление на экране (выпрыгивает сверху и закрывается через какое-то время)
+                        .setPriority(NotificationCompat.PRIORITY_MAX) // Приоритет HIGH позволяет показывать всплывающее уведомление на экране (выпрыгивает сверху и закрывается через какое-то время)
                         .setContentIntent(contentIntent)
                         .setAutoCancel(true) // Автоматически закрыть уведомление после нажатия
                         .setDefaults(Notification.DEFAULT_ALL) // Звук, вибрация и индикация светодидоами выставляется по умолчанию
