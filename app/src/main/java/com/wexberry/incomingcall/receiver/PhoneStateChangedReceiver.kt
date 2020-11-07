@@ -32,27 +32,28 @@ open class PhoneStateChangedReceiver : BroadcastReceiver() {
 
     @SuppressLint("ClickableViewAccessibility")
     override fun onReceive(p0: Context?, p1: Intent?) {
-        if (p1?.action.equals("android.intent.action.PHONE_STATE")) {
-            // Получаем состояние телефона
-            val phone_state: String? = p1?.getStringExtra(TelephonyManager.EXTRA_STATE)
+        if (p1 != null) {
+            if (p1?.action.equals("android.intent.action.PHONE_STATE")) {
+                // Получаем состояние телефона
+                val phone_state: String? = p1?.getStringExtra(TelephonyManager.EXTRA_STATE)
 
-            // Если состояние телефона - звонок, то выполняем код
-            // if (phone_state == p1?.getStringExtra(TelephonyManager.EXTRA_STATE_RINGING)) - гугл говорит,
-            // что должен быть этот код, но мне присылает null, а должен "RINGING". Поэтому я проверяю вручную:
-            if (phone_state == "RINGING") {
-                val incoming_number: String =
-                    p1.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
-                        .toString() // Получаем входящий номер
+                // Если состояние телефона - звонок, то выполняем код
+                // if (phone_state == p1?.getStringExtra(TelephonyManager.EXTRA_STATE_RINGING)) - гугл говорит,
+                // что должен быть этот код, но мне присылает null, а должен "RINGING". Поэтому я проверяю вручную:
+                if (phone_state == "RINGING") {
+                    val incoming_number: String =
+                        p1.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
+                            .toString() // Получаем входящий номер
 
-                // Запускаем сервис отображения окна
-                val intentMyService = Intent(p0, MyService::class.java)
-                intentMyService.putExtra("incoming_number", incoming_number)
-                p0?.startService(intentMyService)
-            } else if (phone_state == "IDLE") {
-                // Останавливаем сервис отображения окна
-                val intentMyService = Intent(p0, MyService::class.java)
-                p0?.stopService(intentMyService)
-                Log.d("TAG", "Сервис остановлен")
+                    // Запускаем сервис отображения окна
+                    val intentMyService = Intent(p0, MyService::class.java)
+                    intentMyService.putExtra("incoming_number", incoming_number)
+                    p0?.startService(intentMyService)
+                } else if (phone_state == "IDLE") {
+                    // Останавливаем сервис отображения окна
+                    val intentMyService = Intent(p0, MyService::class.java)
+                    p0?.stopService(intentMyService)
+                }
             }
         }
     }

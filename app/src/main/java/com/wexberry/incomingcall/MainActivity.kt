@@ -16,6 +16,7 @@ import android.os.Bundle
 import android.os.Looper
 import android.provider.Settings
 import android.telephony.TelephonyManager
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -40,6 +41,14 @@ class MainActivity : AppCompatActivity() {
 
         init()
         initFunc()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+
+        // Останавливаем сервис отображения окна
+        val intentMyService = Intent(this, MyService::class.java)
+        this.stopService(intentMyService)
     }
 
     private fun init() {
