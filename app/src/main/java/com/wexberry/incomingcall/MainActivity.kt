@@ -47,6 +47,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     private fun initFunc() {
+        myService
         btnClick() // Обработчик нажатия кнопок
         registerReceived() // Динамическая регистрация Ресивера
         permissionStatus() // Запрос разрешения (Андроид 6+)

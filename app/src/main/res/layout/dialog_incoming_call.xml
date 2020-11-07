@@ -1,30 +1,23 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<androidx.cardview.widget.CardView
+    xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/dialog_incoming_call"
     android:layout_width="203dp"
     android:layout_height="wrap_content"
     android:layout_gravity="center"
-    android:layout_margin="50dp"
-    android:background="#50000000">
-
-    <androidx.cardview.widget.CardView
-        android:layout_width="200dp"
-        android:layout_height="wrap_content"
-        android:layout_margin="3dp"
-        app:cardCornerRadius="20dp"
-        app:cardElevation="3dp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:background="@color/white">
+    android:layout_margin="3dp"
+    app:cardCornerRadius="20dp"
+    app:cardElevation="3dp">
 
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:layout_margin="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="10dp"
+            android:layout_marginRight="10dp"
             android:orientation="vertical">
 
             <TextView
@@ -32,8 +25,9 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Длинное имя "
-                android:textColor="@color/black"
+                android:gravity="center"
+                android:text="Имя звонящего"
+                android:textColor="@color/purple_700"
                 android:textSize="18sp" />
 
             <TextView
@@ -41,12 +35,10 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_gravity="center"
-                android:text="Номер стандартный"
-                android:textColor="@color/black"
+                android:gravity="center"
+                android:text="Номер"
                 android:textSize="16sp" />
 
         </LinearLayout>
 
-    </androidx.cardview.widget.CardView>
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</androidx.cardview.widget.CardView>

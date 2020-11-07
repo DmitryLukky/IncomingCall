@@ -54,7 +54,6 @@ open class PhoneStateChangedReceiver : BroadcastReceiver() {
                 p0?.stopService(intentMyService)
                 Log.d("TAG", "Сервис остановлен")
             }
-            Log.d("TAG", phone_state.toString())
         }
     }
 }
