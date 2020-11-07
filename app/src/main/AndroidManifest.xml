@@ -2,12 +2,13 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.wexberry.incomingcall">
 
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
-    <uses-permission android:name="android.permission.READ_CALL_LOG"/>
+    <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_CALL_LOG" />
+    <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
 
-    <uses-feature android:name="android.hardware.telephony"/>
-    <uses-feature android:name="android.hardware.telephony.cdma"/>
-    <uses-feature android:name="android.hardware.telephony.gsm"/>
+    <uses-feature android:name="android.hardware.telephony" />
+    <uses-feature android:name="android.hardware.telephony.cdma" />
+    <uses-feature android:name="android.hardware.telephony.gsm" />
 
     <application
         android:allowBackup="true"
@@ -16,6 +17,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.IncomingCall">
+
+        <service
+            android:name=".service.MyService"
+            android:enabled="true"
+            android:exported="true">
+        </service>
+
         <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
@@ -24,12 +32,14 @@
             </intent-filter>
         </activity>
 
-        <receiver android:name=".receiver.PhoneStateChangedReceiver" android:exported="true" android:enabled="true" >
+        <receiver
+            android:name=".receiver.PhoneStateChangedReceiver"
+            android:enabled="true"
+            android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>
-
     </application>
 
 </manifest>

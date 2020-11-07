@@ -1,36 +1,75 @@
 package com.wexberry.incomingcall
 
+import android.Manifest
+import android.annotation.SuppressLint
 import android.app.NotificationChannel
 import android.app.NotificationManager
-import android.app.PendingIntent
 import android.content.Context
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
 import android.graphics.Color
+import android.graphics.PixelFormat
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.os.Looper
+import android.provider.Settings
 import android.telephony.TelephonyManager
+import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
+import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.wexberry.incomingcall.receiver.PhoneStateChangedReceiver
-import java.util.jar.Manifest
+import com.wexberry.incomingcall.service.MyService
+import kotlinx.android.synthetic.main.activity_main.*
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
+
 
 class MainActivity : AppCompatActivity() {
+
+    lateinit var myService: MyService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
+        init()
         initFunc()
     }
 
+    private fun init() {
+        myService = MyService()
+    }
+
     private fun initFunc() {
+        btnClick() // Обработчик нажатия кнопок
         registerReceived() // Динамическая регистрация Ресивера
         permissionStatus() // Запрос разрешения (Андроид 6+)
         createNotificationChannel() // Создаём channel для notifications (Андроид 8+)
+    }
+
+    private fun btnClick() {
+        btnMagic.setOnClickListener {
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+                if (!Settings.canDrawOverlays(this)) {
+                    Toast.makeText(this, "Дайте разрешение", Toast.LENGTH_SHORT).show()
+                } else {
+                    // Запускаем сервис отображения окна
+                    val intentMyService = Intent(this, MyService::class.java)
+                    this.startService(intentMyService)
+                }
+            }
+        }
+
+        btnPermission.setOnClickListener {
+            // Зарпашиваем разрешение на наложение окон
+            permissionOverlayOverWindows()
+        }
     }
 
     // Динамическая регистрация Ресивера
@@ -39,6 +78,14 @@ class MainActivity : AppCompatActivity() {
         val intentFilter = IntentFilter()
         intentFilter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
         registerReceiver(receiver, intentFilter)
+    }
+
+    private fun permissionOverlayOverWindows() {
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            val intent =
+                Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
+            startActivityForResult(intent, 0)
+        }
     }
 
     // Запрашиваем разрешения с Андроид 6+ (М)
