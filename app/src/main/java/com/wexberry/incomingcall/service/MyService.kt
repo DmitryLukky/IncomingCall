@@ -27,8 +27,8 @@ class MyService : Service() {
 
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val incoming_number: String = intent?.getStringExtra("incoming_number").toString()
-        GlobalScope.launch(Dispatchers.Main){
-        service(incoming_number)
+        GlobalScope.launch(Dispatchers.Main) {
+            service(incoming_number)
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -44,7 +44,8 @@ class MyService : Service() {
                 WindowManager.LayoutParams.TYPE_PHONE
             },
             WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
+            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
         )
 
         // Настраиваем ширину и высоту макета

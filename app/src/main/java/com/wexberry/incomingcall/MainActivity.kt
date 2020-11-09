@@ -129,6 +129,7 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == 0) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Спасибо", Toast.LENGTH_SHORT).show()
+                myService
             } else {
                 Toast.makeText(this, "Зря ты так сделал..", Toast.LENGTH_SHORT).show()
             }
