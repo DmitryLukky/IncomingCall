@@ -1,13 +1,16 @@
 package com.wexberry.incomingcall.service
 
 import android.annotation.SuppressLint
+import android.app.KeyguardManager
 import android.app.Service
+import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.IBinder
 import android.view.*
 import android.widget.Toast
 import androidx.cardview.widget.CardView
+import androidx.core.content.ContextCompat
 import com.wexberry.incomingcall.R
 import kotlinx.android.synthetic.main.dialog_incoming_call.view.*
 import kotlinx.coroutines.Dispatchers
@@ -25,10 +28,12 @@ class MyService : Service() {
         TODO("Return the communication channel to the service.")
     }
 
+    // Вызывается при запуске сервиса
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         val incoming_number: String = intent?.getStringExtra("incoming_number").toString()
+
         GlobalScope.launch(Dispatchers.Main) {
-            service(incoming_number)
+        service(incoming_number)
         }
         return super.onStartCommand(intent, flags, startId)
     }
@@ -42,18 +47,19 @@ class MyService : Service() {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             } else {
                 WindowManager.LayoutParams.TYPE_PHONE
-            },
-            WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-            WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+            }
         )
+        params.flags = WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE;
+        WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN;
+        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED;
+        WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD;
+        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON;
 
         // Настраиваем ширину и высоту макета
         params.width = WindowManager.LayoutParams.WRAP_CONTENT
         params.height = WindowManager.LayoutParams.WRAP_CONTENT
 
         PixelFormat.TRANSLUCENT
-        PixelFormat.TRANSPARENT
 
         params.gravity = Gravity.TOP
         params.x = 235
@@ -100,6 +106,5 @@ class MyService : Service() {
         super.onDestroy()
 
         rootView.removeAllViews()
-
     }
 }

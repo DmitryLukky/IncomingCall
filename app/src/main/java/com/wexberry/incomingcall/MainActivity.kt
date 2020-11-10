@@ -1,34 +1,20 @@
 package com.wexberry.incomingcall
 
-import android.Manifest
-import android.annotation.SuppressLint
-import android.app.NotificationChannel
-import android.app.NotificationManager
-import android.content.Context
+import android.app.KeyguardManager
 import android.content.Intent
 import android.content.IntentFilter
 import android.content.pm.PackageManager
-import android.graphics.Color
-import android.graphics.PixelFormat
 import android.net.Uri
-import android.os.Build
 import android.os.Bundle
-import android.os.Looper
 import android.provider.Settings
 import android.telephony.TelephonyManager
-import android.util.Log
-import android.view.*
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
-import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.wexberry.incomingcall.receiver.PhoneStateChangedReceiver
 import com.wexberry.incomingcall.service.MyService
 import kotlinx.android.synthetic.main.activity_main.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 
 class MainActivity : AppCompatActivity() {
@@ -38,6 +24,11 @@ class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
+
+        val keyguardManager: KeyguardManager = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            keyguardManager.requestDismissKeyguard(this, null)
+        }
 
         init()
         initFunc()
@@ -60,7 +51,6 @@ class MainActivity : AppCompatActivity() {
         btnClick() // Обработчик нажатия кнопок
         registerReceived() // Динамическая регистрация Ресивера
         permissionStatus() // Запрос разрешения (Андроид 6+)
-        createNotificationChannel() // Создаём channel для notifications (Андроид 8+)
     }
 
     private fun btnClick() {
@@ -109,7 +99,10 @@ class MainActivity : AppCompatActivity() {
             // Если разрешения не дано, то запрашиваем его
             if (permissionStatus == PackageManager.PERMISSION_DENIED) {
                 // Список с разрешениями
-                val permissions = arrayOf(android.Manifest.permission.READ_PHONE_STATE)
+                val permissions = arrayOf(
+                    android.Manifest.permission.READ_PHONE_STATE,
+                    android.Manifest.permission.DISABLE_KEYGUARD
+                )
                 // Запрашиваем разрешения из списка
                 ActivityCompat.requestPermissions(this, permissions, 0)
             }
@@ -133,25 +126,6 @@ class MainActivity : AppCompatActivity() {
             } else {
                 Toast.makeText(this, "Зря ты так сделал..", Toast.LENGTH_SHORT).show()
             }
-        }
-    }
-
-    // Для версий Андроид Oreo (8) нужно создавать channel
-    private fun createNotificationChannel() {
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            val channel = NotificationChannel(
-                PhoneStateChangedReceiver().CHANNEL_ID,
-                "Channel notification",
-                NotificationManager.IMPORTANCE_HIGH
-            )
-            channel.description = "Channel for notifications"
-            channel.enableLights(true)
-            channel.lightColor = Color.RED
-            channel.enableVibration(false)
-
-            val notificationManager: NotificationManager =
-                getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-            notificationManager.createNotificationChannel(channel)
         }
     }
 }
