@@ -1,14 +1,20 @@
 package com.wexberry.incomingcall.receiver
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.KeyguardManager
+import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Context.KEYGUARD_SERVICE
 import android.content.Intent
+import android.os.PowerManager
 import android.telephony.TelephonyManager
 import androidx.core.content.ContextCompat.getSystemService
 import com.wexberry.incomingcall.service.MyService
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.launch
 
 
 open class PhoneStateChangedReceiver : BroadcastReceiver() {
@@ -30,10 +36,17 @@ open class PhoneStateChangedReceiver : BroadcastReceiver() {
                         p1.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
                             .toString() // Получаем входящий номер
 
-                    // Запускаем сервис отображения окна
-                    val intentMyService = Intent(p0, MyService::class.java)
-                    intentMyService.putExtra("incoming_number", incoming_number)
-                    p0?.startService(intentMyService)
+                    GlobalScope.launch(Dispatchers.Main) {
+                        // Запускаем сервис отображения окна
+                        val intentMyService = Intent(p0, MyService::class.java)
+                        intentMyService.putExtra("incoming_number", incoming_number)
+
+                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                            p0?.startForegroundService(intentMyService)
+                        } else {
+                            p0?.startService(intentMyService)
+                        }
+                    }
                 } else if (phone_state == "IDLE") {
                     // Останавливаем сервис отображения окна
                     val intentMyService = Intent(p0, MyService::class.java)

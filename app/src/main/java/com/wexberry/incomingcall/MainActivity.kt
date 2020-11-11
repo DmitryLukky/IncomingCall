@@ -25,11 +25,6 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
 
-        val keyguardManager: KeyguardManager = getSystemService(KEYGUARD_SERVICE) as KeyguardManager
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-            keyguardManager.requestDismissKeyguard(this, null)
-        }
-
         init()
         initFunc()
     }
@@ -61,7 +56,11 @@ class MainActivity : AppCompatActivity() {
                 } else {
                     // Запускаем сервис отображения окна
                     val intentMyService = Intent(this, MyService::class.java)
-                    this.startService(intentMyService)
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        this.startForegroundService(intentMyService)
+                    } else {
+                        this.startService(intentMyService)
+                    }
                 }
             }
         }

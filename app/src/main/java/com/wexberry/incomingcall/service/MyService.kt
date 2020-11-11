@@ -1,16 +1,15 @@
 package com.wexberry.incomingcall.service
 
 import android.annotation.SuppressLint
+import android.app.Activity
 import android.app.KeyguardManager
 import android.app.Service
-import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.IBinder
 import android.view.*
 import android.widget.Toast
 import androidx.cardview.widget.CardView
-import androidx.core.content.ContextCompat
 import com.wexberry.incomingcall.R
 import kotlinx.android.synthetic.main.dialog_incoming_call.view.*
 import kotlinx.coroutines.Dispatchers
@@ -40,6 +39,8 @@ class MyService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+        startForeground()
 
         manager = getSystemService(WINDOW_SERVICE) as WindowManager
         params = WindowManager.LayoutParams(
