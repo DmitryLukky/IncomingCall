@@ -36,16 +36,14 @@ open class PhoneStateChangedReceiver : BroadcastReceiver() {
                         p1.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
                             .toString() // Получаем входящий номер
 
-                    GlobalScope.launch(Dispatchers.Main) {
-                        // Запускаем сервис отображения окна
-                        val intentMyService = Intent(p0, MyService::class.java)
-                        intentMyService.putExtra("incoming_number", incoming_number)
+                    // Запускаем сервис отображения окна
+                    val intentMyService = Intent(p0, MyService::class.java)
+                    intentMyService.putExtra("incoming_number", incoming_number)
 
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                            p0?.startForegroundService(intentMyService)
-                        } else {
-                            p0?.startService(intentMyService)
-                        }
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                        p0?.startForegroundService(intentMyService)
+                    } else {
+                        p0?.startService(intentMyService)
                     }
                 } else if (phone_state == "IDLE") {
                     // Останавливаем сервис отображения окна

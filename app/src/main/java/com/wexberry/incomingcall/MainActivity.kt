@@ -19,7 +19,7 @@ import kotlinx.android.synthetic.main.activity_main.*
 
 class MainActivity : AppCompatActivity() {
 
-    lateinit var myService: MyService
+    // lateinit var myService: MyService
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -33,16 +33,16 @@ class MainActivity : AppCompatActivity() {
         super.onDestroy()
 
         // Останавливаем сервис отображения окна
-        val intentMyService = Intent(this, MyService::class.java)
-        this.stopService(intentMyService)
+//        val intentMyService = Intent(this, MyService::class.java)
+//        this.stopService(intentMyService)
     }
 
     private fun init() {
-        myService = MyService()
+        // myService = MyService()
     }
 
     private fun initFunc() {
-        myService
+        // myService
         btnClick() // Обработчик нажатия кнопок
         registerReceived() // Динамическая регистрация Ресивера
         permissionStatus() // Запрос разрешения (Андроид 6+)
@@ -53,14 +53,12 @@ class MainActivity : AppCompatActivity() {
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
                 if (!Settings.canDrawOverlays(this)) {
                     Toast.makeText(this, "Дайте разрешение", Toast.LENGTH_SHORT).show()
-                } else {
-                    // Запускаем сервис отображения окна
-                    val intentMyService = Intent(this, MyService::class.java)
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                        this.startForegroundService(intentMyService)
-                    } else {
-                        this.startService(intentMyService)
-                    }
+                }
+                else {
+                    Toast.makeText(this, "Отключено", Toast.LENGTH_SHORT).show()
+                     //Запускаем сервис отображения окна
+//                    val intentMyService = Intent(this, MyService::class.java)
+//                    ContextCompat.startForegroundService(applicationContext, intentMyService)
                 }
             }
         }
@@ -121,7 +119,6 @@ class MainActivity : AppCompatActivity() {
         if (requestCode == 0) {
             if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 Toast.makeText(this, "Спасибо", Toast.LENGTH_SHORT).show()
-                myService
             } else {
                 Toast.makeText(this, "Зря ты так сделал..", Toast.LENGTH_SHORT).show()
             }
