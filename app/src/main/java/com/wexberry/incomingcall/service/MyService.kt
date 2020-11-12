@@ -11,6 +11,7 @@ import android.view.*
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.app.NotificationCompat
+import androidx.core.content.ContextCompat
 import com.wexberry.incomingcall.R
 import kotlinx.android.synthetic.main.dialog_incoming_call.view.*
 import kotlinx.coroutines.Dispatchers
@@ -69,7 +70,7 @@ class MyService : Service() {
         manager = getSystemService(WINDOW_SERVICE) as WindowManager
         params = WindowManager.LayoutParams(
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                WindowManager.LayoutParams.TYPE_SYSTEM_ALERT
+                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
             } else {
                 WindowManager.LayoutParams.TYPE_SYSTEM_ERROR
             }, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
@@ -89,7 +90,7 @@ class MyService : Service() {
         params.y = 200
 
         rootView =
-            LayoutInflater.from(this)
+            LayoutInflater.from(applicationContext)
                 .inflate(R.layout.dialog_incoming_call, null) as CardView
 
         manager.addView(rootView, params)
