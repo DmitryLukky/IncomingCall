@@ -44,22 +44,27 @@ class MainActivity : AppCompatActivity() {
 
     private fun btnClick() {
         btnMagic.setOnClickListener {
-           // if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-                //if (!Settings.canDrawOverlays(this)) {
-                    permissionOverlayOverWindowForXiaomiOppoVivo()
-                    //Toast.makeText(this, "Дайте разрешение", Toast.LENGTH_SHORT).show()
-                //} else {
-                    //Toast.makeText(this, "Отключено", Toast.LENGTH_SHORT).show()
-                    //Запускаем сервис отображения окна
+            // if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
+            //if (!Settings.canDrawOverlays(this)) {
+            permissionOverlayOverWindowForXiaomiOppoVivo()
+            //Toast.makeText(this, "Дайте разрешение", Toast.LENGTH_SHORT).show()
+            //} else {
+            //Toast.makeText(this, "Отключено", Toast.LENGTH_SHORT).show()
+            //Запускаем сервис отображения окна
 //                    val intentMyService = Intent(this, MyService::class.java)
 //                    ContextCompat.startForegroundService(applicationContext, intentMyService)
-                //}
+            //}
             //}
         }
 
         btnPermission.setOnClickListener {
             // Запрашиваем разрешение на наложение окон
             permissionOverlayOverWindows()
+        }
+
+        btnPermission2.setOnClickListener {
+            // Запрашиваем разрешение Read Call Log
+            permissionReadCallLog()
         }
     }
 
@@ -111,6 +116,22 @@ class MainActivity : AppCompatActivity() {
             val intent =
                 Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION, Uri.parse("package:$packageName"))
             startActivityForResult(intent, 0)
+        }
+    }
+
+    private fun permissionReadCallLog() {
+        val permissionStatus: Int = ContextCompat.checkSelfPermission(
+            this,
+            android.Manifest.permission.READ_CALL_LOG
+        )
+        // Если разрешения не дано, то запрашиваем его
+        if (permissionStatus == PackageManager.PERMISSION_DENIED) {
+            // Список с разрешениями
+            val permissions = arrayOf(
+                android.Manifest.permission.READ_CALL_LOG
+            )
+            // Запрашиваем разрешения из списка
+            ActivityCompat.requestPermissions(this, permissions, 0)
         }
     }
 

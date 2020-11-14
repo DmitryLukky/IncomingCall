@@ -14,7 +14,7 @@
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:text="Magic"
+        android:text="Для Xiaomi, Otto и Vivo"
         android:textSize="20sp"
         android:textAllCaps="false"/>
 
@@ -26,7 +26,19 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         android:layout_margin="20dp"
-        android:text="Дать разрешение"
+        android:text="Первое разрешение"
+        android:textSize="18sp"
+        android:textAllCaps="false"/>
+
+    <Button
+        android:id="@+id/btnPermission2"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        app:layout_constraintTop_toBottomOf="@+id/btnPermission"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        android:layout_margin="20dp"
+        android:text="Второе разрешение"
         android:textSize="18sp"
         android:textAllCaps="false"/>
 

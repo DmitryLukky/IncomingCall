@@ -25,10 +25,15 @@ class MyService : Service() {
         TODO("Return the communication channel to the service.")
     }
 
+    override fun onCreate() {
+        super.onCreate()
+        showNotification()
+    }
+
     // Вызывается при запуске сервиса
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
         // Показываем уведомление о запущеном сервисе (Обязательно требуется с Андроид 8+, если этого не сделать, то сервис умрёт)
-        showNotification()
+        //showNotification()
 
         // Получаем номер телефона из ресивера
         val incoming_number: String = intent?.getStringExtra("incoming_number").toString()
