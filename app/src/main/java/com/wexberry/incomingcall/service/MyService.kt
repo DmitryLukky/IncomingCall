@@ -11,12 +11,8 @@ import android.view.*
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import com.wexberry.incomingcall.R
 import kotlinx.android.synthetic.main.dialog_incoming_call.view.*
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
-import kotlinx.coroutines.launch
 
 
 class MyService : Service() {
@@ -54,15 +50,11 @@ class MyService : Service() {
             val manager = (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
             manager.createNotificationChannel(channel)
             val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
+                .setSmallIcon(R.drawable.ic_launcher_foreground) // Если не указать, то будут краши на Андроид 8
                 .setContentTitle("Title")
                 .setContentText("Text").build()
             startForeground(1, notification)
         }
-    }
-
-    override fun onCreate() {
-        super.onCreate()
-
     }
 
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
@@ -70,7 +62,7 @@ class MyService : Service() {
         manager = getSystemService(WINDOW_SERVICE) as WindowManager
         params = WindowManager.LayoutParams(
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                WindowManager.LayoutParams.TYPE_ACCESSIBILITY_OVERLAY
+                WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             } else {
                 WindowManager.LayoutParams.TYPE_SYSTEM_ERROR
             }, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
@@ -83,11 +75,11 @@ class MyService : Service() {
         params.width = WindowManager.LayoutParams.WRAP_CONTENT
         params.height = WindowManager.LayoutParams.WRAP_CONTENT
 
-        PixelFormat.TRANSLUCENT
+        params.format = PixelFormat.TRANSLUCENT
 
         params.gravity = Gravity.TOP
-        params.x = 235
-        params.y = 200
+        params.x = 235 // Координата по горизонтали
+        params.y = 200 // Координата по вертикали
 
         rootView =
             LayoutInflater.from(applicationContext)
