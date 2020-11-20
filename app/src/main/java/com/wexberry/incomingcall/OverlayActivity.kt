@@ -1,66 +1,72 @@
-package com.wexberry.incomingcall.service
+package com.wexberry.incomingcall
 
 import android.annotation.SuppressLint
-import android.app.*
+import android.app.KeyguardManager
 import android.content.Context
 import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
-import android.os.IBinder
+import androidx.appcompat.app.AppCompatActivity
+import android.os.Bundle
 import android.view.*
 import android.widget.Toast
+import androidx.annotation.RequiresApi
 import androidx.cardview.widget.CardView
-import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
-import com.wexberry.incomingcall.R
+import com.wexberry.incomingcall.service.MyService
 import kotlinx.android.synthetic.main.dialog_incoming_call.view.*
+import kotlin.system.exitProcess
 
-
-class MyService : Service() {
+class OverlayActivity : AppCompatActivity() {
 
     lateinit var manager: WindowManager
     lateinit var params: WindowManager.LayoutParams
     lateinit var rootView: CardView
 
-    override fun onBind(intent: Intent): IBinder {
-        TODO("Return the communication channel to the service.")
-    }
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        setContentView(R.layout.activity_overlay)
 
-    override fun onCreate() {
-        super.onCreate()
-        showNotification()
-    }
+        // Даём активити возможность появляться на заблокированном экране
+        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O_MR1) {
+            setShowWhenLocked(true)
+            setTurnScreenOn(true)
 
-    // Вызывается при запуске сервиса
-    override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Показываем уведомление о запущеном сервисе (Обязательно требуется с Андроид 8+, если этого не сделать, то сервис умрёт)
-        //showNotification()
+            val keyguardManager = getSystemService(Context.KEYGUARD_SERVICE) as KeyguardManager
+            keyguardManager.requestDismissKeyguard(this, null)
+        }
+
+//        var windowTest: WindowManager.LayoutParams = window.attributes
+//        windowTest.dimAmount = 0F
+//        windowTest.flags = (WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL
+//                or WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE)
+//
+//        windowTest.width = WindowManager.LayoutParams.WRAP_CONTENT
+//        windowTest.height = WindowManager.LayoutParams.WRAP_CONTENT
+//
+//        windowTest.format = PixelFormat.TRANSLUCENT
+//
+//        window.attributes = windowTest
 
         // Получаем номер телефона из ресивера
         val incoming_number: String = intent?.getStringExtra("incoming_number").toString()
 
-        // Запускаем сервис с вложенным в него номером телефона
-        service(incoming_number)
+        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+            val intentMyService = Intent(this, MyService::class.java)
+            intentMyService.putExtra("incoming_number", incoming_number)
 
-        return super.onStartCommand(intent, flags, startId)
-    }
-
-    private fun showNotification() {
-        if (Build.VERSION.SDK_INT >= 26) {
-            val CHANNEL_ID = "Channel_01"
-            val channel = NotificationChannel(
-                CHANNEL_ID,
-                "Читаемое название канала",
-                NotificationManager.IMPORTANCE_DEFAULT
-            )
-            val manager = (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
-            manager.createNotificationChannel(channel)
-            val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
-                .setSmallIcon(R.drawable.ic_launcher_foreground) // Если не указать, то будут краши на Андроид 8
-                .setContentTitle("Title")
-                .setContentText("Text").build()
-            startForeground(1, notification)
+            startForegroundService(intentMyService)
         }
+
+        clearAllView()
+
+        //val stopActivity: Boolean = intent.getBooleanExtra("stop", false)
+
+//        if (stopActivity) {
+//            clearAllView()
+//        }
+
+        // Показываем плавающее окно
+        //service(incoming_number)
     }
 
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
@@ -71,22 +77,14 @@ class MyService : Service() {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
             } else {
                 WindowManager.LayoutParams.TYPE_SYSTEM_ERROR
-            }, //WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
-            WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-//                    WindowManager.LayoutParams.FLAG_ALT_FOCUSABLE_IM or
-//                    WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN or
-//                    WindowManager.LayoutParams.FLAG_LAYOUT_INSET_DECOR or
-//                    WindowManager.LayoutParams.FLAG_LAYOUT_ATTACHED_IN_DECOR or
-//                    WindowManager.LayoutParams.FLAG_KEEP_SCREEN_ON or
-//                    WindowManager.LayoutParams.FLAG_ALLOW_LOCK_WHILE_SCREEN_ON or
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+            }, WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+            WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED
+            //WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
         )
 
         // Настраиваем ширину и высоту макета
         params.width = WindowManager.LayoutParams.WRAP_CONTENT
-
         params.height = WindowManager.LayoutParams.WRAP_CONTENT
 
         params.format = PixelFormat.TRANSLUCENT
@@ -129,9 +127,15 @@ class MyService : Service() {
             })
     }
 
+    fun clearAllView() {
+        finishAffinity()
+        exitProcess(0)
+        //rootView.removeAllViews()
+    }
+
     override fun onDestroy() {
         super.onDestroy()
 
-        rootView.removeAllViews()
+        clearAllView()
     }
 }

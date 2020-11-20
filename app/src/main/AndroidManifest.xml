@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
     package="com.wexberry.incomingcall">
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
@@ -7,6 +8,8 @@
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
     <uses-permission android:name="android.permission.FOREGROUND_SERVICE" />
+    <uses-permission android:name="android.permission.CALL_PHONE" />
+    <uses-permission android:name="android.permission.DISABLE_KEYGUARD" />
 
     <uses-feature android:name="android.hardware.telephony" />
     <uses-feature android:name="android.hardware.telephony.cdma" />
@@ -19,6 +22,11 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.IncomingCall">
+        <activity
+            android:name=".OverlayActivity"
+            android:theme="@style/Transparent">
+
+        </activity>
 
         <service
             android:name=".service.MyService"

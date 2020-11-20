@@ -1,14 +1,20 @@
 package com.wexberry.incomingcall.receiver
 
 import android.annotation.SuppressLint
+import android.app.Activity
+import android.app.KeyguardManager
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
+import android.os.Build
 import android.telecom.Call
 import android.telephony.PhoneStateListener
 import android.telephony.TelephonyManager
 import android.util.Log
+import androidx.core.content.ContextCompat
+import com.wexberry.incomingcall.OverlayActivity
 import com.wexberry.incomingcall.service.MyService
+import kotlin.coroutines.coroutineContext
 
 
 open class PhoneStateChangedReceiver : BroadcastReceiver() {
@@ -19,6 +25,7 @@ open class PhoneStateChangedReceiver : BroadcastReceiver() {
 
     @SuppressLint("UnsafeProtectedBroadcastReceiver")
     override fun onReceive(p0: Context?, p1: Intent?) {
+
         // С Андроида 6+ ресивер вызывается 2 раза, один с номером телефона, второй без.
         val telephony: TelephonyManager =
             p0?.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
@@ -35,12 +42,25 @@ open class PhoneStateChangedReceiver : BroadcastReceiver() {
                     val intentMyService = Intent(p0, MyService::class.java)
                     intentMyService.putExtra("incoming_number", incoming_number)
 
+//                    val intentOverlayActivity = Intent(p0, OverlayActivity::class.java)
+//                    intentOverlayActivity.putExtra("incoming_number", incoming_number)
+//                    intentOverlayActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+
                     if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                         p0.startForegroundService(intentMyService)
+                        //p0.startActivity(intentOverlayActivity)
                     } else {
                         p0.startService(intentMyService)
+                        //p0.startActivity(intentOverlayActivity)
                     }
                 } else if (state == CALL_INTERRUPTED) {
+//                    val intentStopActivity = Intent(p0, OverlayActivity::class.java)
+//                    intentStopActivity.putExtra("stop", true)
+//                    intentStopActivity.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+//                    p0.startActivity(intentStopActivity)
+
+
+                    //OverlayActivity().clearAllView()
                     // Останавливаем сервис отображения окна
                     val intentMyService = Intent(p0, MyService::class.java)
                     p0.stopService(intentMyService)
