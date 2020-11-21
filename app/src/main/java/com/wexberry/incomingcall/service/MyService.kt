@@ -7,12 +7,10 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
-import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import androidx.core.app.NotificationCompat
-import androidx.core.content.ContextCompat
 import com.wexberry.incomingcall.R
 import kotlinx.android.synthetic.main.dialog_incoming_call.view.*
 
@@ -31,18 +29,20 @@ class MyService : Service() {
     override fun onCreate() {
         super.onCreate()
 
-        // Показываем уведомление о запущеном сервисе (Обязательно требуется с Андроид 8+, если этого не сделать, то сервис умрёт)
-        showNotification()
+        startForeground(1, showNotification())
     }
 
     // Вызывается при запуске сервиса
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
+        // Показываем уведомление о запущеном сервисе (Обязательно требуется с Андроид 8+, если этого не сделать, то сервис умрёт)
+        showNotification()
+
         if (!showView) {
             // Получаем номер телефона из ресивера
             val incoming_number: String = intent?.getStringExtra("incoming_number").toString()
 
             // Запускаем метод отображения окна с вложенным в него номером телефона
-            service(incoming_number)
+            showView(incoming_number)
 
             showView = true
         }
@@ -51,7 +51,7 @@ class MyService : Service() {
     }
 
     // С 8 Андроида для работы сервиса в фоне необходимо показывать notification
-    private fun showNotification() {
+    private fun showNotification(): Notification {
         if (Build.VERSION.SDK_INT >= 26) {
             val CHANNEL_ID = "Channel_01"
             val channel = NotificationChannel(
@@ -61,17 +61,19 @@ class MyService : Service() {
             )
             val manager = (getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager)
             manager.createNotificationChannel(channel)
+
             val notification: Notification = NotificationCompat.Builder(this, CHANNEL_ID)
                 .setSmallIcon(R.drawable.ic_launcher_foreground) // Если не указать, то будут краши на Андроид 8
                 .setContentTitle("Title")
                 .setContentText("Text").build()
-            startForeground(1, notification)
+
+            return notification
         }
     }
 
     // Показываем окно
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
-    fun service(incoming_number: String) {
+    fun showView(incoming_number: String) {
         manager = getSystemService(WINDOW_SERVICE) as WindowManager
 
         params = WindowManager.LayoutParams(
