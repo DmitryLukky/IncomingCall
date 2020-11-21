@@ -28,14 +28,6 @@ class MainActivity : AppCompatActivity() {
         initFunc()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
-
-        // Останавливаем сервис отображения окна
-//        val intentMyService = Intent(this, MyService::class.java)
-//        this.stopService(intentMyService)
-    }
-
     private fun initFunc() {
         btnClick() // Обработчик нажатия кнопок
         registerReceived() // Динамическая регистрация Ресивера
@@ -72,6 +64,7 @@ class MainActivity : AppCompatActivity() {
     private fun registerReceived() {
         val receiver = PhoneStateChangedReceiver()
         val intentFilter = IntentFilter()
+
         intentFilter.addAction(TelephonyManager.ACTION_PHONE_STATE_CHANGED)
         registerReceiver(receiver, intentFilter)
     }
@@ -119,6 +112,7 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Запрашиваем разрешение Read Call Log
     private fun permissionReadCallLog() {
         val permissionStatus: Int = ContextCompat.checkSelfPermission(
             this,

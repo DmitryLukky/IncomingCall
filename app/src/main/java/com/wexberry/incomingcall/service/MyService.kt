@@ -7,6 +7,7 @@ import android.content.Intent
 import android.graphics.PixelFormat
 import android.os.Build
 import android.os.IBinder
+import android.util.Log
 import android.view.*
 import android.widget.Toast
 import androidx.cardview.widget.CardView
@@ -21,6 +22,7 @@ class MyService : Service() {
     lateinit var manager: WindowManager
     lateinit var params: WindowManager.LayoutParams
     lateinit var rootView: CardView
+    var showView: Boolean = false
 
     override fun onBind(intent: Intent): IBinder {
         TODO("Return the communication channel to the service.")
@@ -28,23 +30,27 @@ class MyService : Service() {
 
     override fun onCreate() {
         super.onCreate()
+
+        // Показываем уведомление о запущеном сервисе (Обязательно требуется с Андроид 8+, если этого не сделать, то сервис умрёт)
         showNotification()
     }
 
     // Вызывается при запуске сервиса
     override fun onStartCommand(intent: Intent?, flags: Int, startId: Int): Int {
-        // Показываем уведомление о запущеном сервисе (Обязательно требуется с Андроид 8+, если этого не сделать, то сервис умрёт)
-        //showNotification()
+        if (!showView) {
+            // Получаем номер телефона из ресивера
+            val incoming_number: String = intent?.getStringExtra("incoming_number").toString()
 
-        // Получаем номер телефона из ресивера
-        val incoming_number: String = intent?.getStringExtra("incoming_number").toString()
+            // Запускаем метод отображения окна с вложенным в него номером телефона
+            service(incoming_number)
 
-        // Запускаем сервис с вложенным в него номером телефона
-        service(incoming_number)
+            showView = true
+        }
 
         return super.onStartCommand(intent, flags, startId)
     }
 
+    // С 8 Андроида для работы сервиса в фоне необходимо показывать notification
     private fun showNotification() {
         if (Build.VERSION.SDK_INT >= 26) {
             val CHANNEL_ID = "Channel_01"
@@ -63,9 +69,11 @@ class MyService : Service() {
         }
     }
 
+    // Показываем окно
     @SuppressLint("ClickableViewAccessibility", "InflateParams")
     fun service(incoming_number: String) {
         manager = getSystemService(WINDOW_SERVICE) as WindowManager
+
         params = WindowManager.LayoutParams(
             if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
                 WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
@@ -86,11 +94,12 @@ class MyService : Service() {
 
         // Настраиваем ширину и высоту макета
         params.width = WindowManager.LayoutParams.WRAP_CONTENT
-
         params.height = WindowManager.LayoutParams.WRAP_CONTENT
 
+        // Система выбирает формат, поддерживающий полупрозрачность (много альфа-бит)
         params.format = PixelFormat.TRANSLUCENT
 
+        // Настраиваем расположение окна
         params.gravity = Gravity.TOP
         params.x = 235 // Координата по горизонтали
         params.y = 200 // Координата по вертикали
@@ -99,6 +108,7 @@ class MyService : Service() {
             LayoutInflater.from(applicationContext)
                 .inflate(R.layout.dialog_incoming_call, null) as CardView
 
+        // Показываем окно
         manager.addView(rootView, params)
 
         // - - - Тут должна быть работа с БД - - -
@@ -132,6 +142,7 @@ class MyService : Service() {
     override fun onDestroy() {
         super.onDestroy()
 
+        // Удаляем окно
         rootView.removeAllViews()
     }
 }
