@@ -4,6 +4,8 @@
     package="com.wexberry.incomingcall">
 
     <uses-permission android:name="android.permission.READ_PHONE_STATE" />
+    <uses-permission android:name="android.permission.READ_PRECISE_PHONE_STATE"
+        tools:ignore="ProtectedPermissions" />
     <uses-permission android:name="android.permission.READ_CALL_LOG" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
     <uses-permission android:name="android.permission.WAKE_LOCK" />
@@ -22,11 +24,6 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/Theme.IncomingCall">
-        <activity
-            android:name=".OverlayActivity"
-            android:theme="@style/Transparent">
-
-        </activity>
 
         <service
             android:name=".service.MyService"
@@ -46,7 +43,7 @@
             android:name=".receiver.PhoneStateChangedReceiver"
             android:enabled="true"
             android:exported="true">
-            <intent-filter>
+            <intent-filter android:priority="999">
                 <action android:name="android.intent.action.PHONE_STATE" />
             </intent-filter>
         </receiver>

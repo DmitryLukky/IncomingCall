@@ -1,5 +1,6 @@
 package com.wexberry.incomingcall
 
+import android.annotation.SuppressLint
 import android.content.ComponentName
 import android.content.Intent
 import android.content.IntentFilter
@@ -34,19 +35,10 @@ class MainActivity : AppCompatActivity() {
         permissionStatus() // Запрос разрешения (Андроид 6+)
     }
 
+    @SuppressLint("QueryPermissionsNeeded")
     private fun btnClick() {
         btnMagic.setOnClickListener {
-            // if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.M) {
-            //if (!Settings.canDrawOverlays(this)) {
             permissionOverlayOverWindowForXiaomiOppoVivo()
-            //Toast.makeText(this, "Дайте разрешение", Toast.LENGTH_SHORT).show()
-            //} else {
-            //Toast.makeText(this, "Отключено", Toast.LENGTH_SHORT).show()
-            //Запускаем сервис отображения окна
-//                    val intentMyService = Intent(this, MyService::class.java)
-//                    ContextCompat.startForegroundService(applicationContext, intentMyService)
-            //}
-            //}
         }
 
         btnPermission.setOnClickListener {

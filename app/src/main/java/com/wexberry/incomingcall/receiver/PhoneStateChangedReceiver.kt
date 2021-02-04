@@ -1,13 +1,18 @@
 package com.wexberry.incomingcall.receiver
 
 import android.annotation.SuppressLint
+import android.app.Service
 import android.content.BroadcastReceiver
 import android.content.Context
 import android.content.Intent
-import android.telephony.PhoneStateListener
+import android.graphics.PixelFormat
 import android.telephony.TelephonyManager
 import android.util.Log
-import com.wexberry.incomingcall.service.MyService
+import android.view.*
+import android.widget.Toast
+import androidx.cardview.widget.CardView
+import com.wexberry.incomingcall.R
+import kotlinx.android.synthetic.main.dialog_incoming_call.view.*
 
 
 open class PhoneStateChangedReceiver : BroadcastReceiver() {
@@ -16,68 +21,125 @@ open class PhoneStateChangedReceiver : BroadcastReceiver() {
     val CALL: Int = 1 // Идёт вызов
     val CALL_ACCEPTED: Int = 2 // Вызов принят (идёт разговор)
 
+    lateinit var incomingNumber: String
+
     @SuppressLint("UnsafeProtectedBroadcastReceiver")
     override fun onReceive(p0: Context?, p1: Intent?) {
-        // С Андроида 6+ ресивер вызывается 2 раза, один с номером телефона, второй без (порядок может быть разным)
-        val telephony: TelephonyManager =
-            p0?.getSystemService(Context.TELEPHONY_SERVICE) as TelephonyManager
+        Log.d("TAG", "Запустился onReceive")
+        // Получаем состояние телефона
+        val phone_state: String? = p1?.getStringExtra(TelephonyManager.EXTRA_STATE)
+        Log.d("TAG", "phone_state: $phone_state")
 
-        // Слушаем состояние вызова и получаем номер телефона
-        telephony.listen(object : PhoneStateListener() {
-            override fun onCallStateChanged(state: Int, phoneNumber: String?) {
-                super.onCallStateChanged(state, phoneNumber)
+        if (phone_state == "RINGING") {
+            Log.d("TAG", "Звонок!")
 
-                if (phoneNumber != null) {
-                    val incoming_number: String = phoneNumber
+            incomingNumber = p1.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
+                .toString() // Получаем входящий номер
 
-                    if (state == CALL) {
-                        // Запускаем сервис отображения окна
-                        val intentMyService = Intent(p0, MyService::class.java)
-                        intentMyService.putExtra("incoming_number", incoming_number)
+            Log.d("TAG", "Number: $incomingNumber")
 
-                        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-                            p0.startForegroundService(intentMyService)
-                        } else {
-                            p0.startService(intentMyService)
-                        }
-                    } else if (state == CALL_INTERRUPTED) {
-                        // Останавливаем сервис отображения окна
-                        val intentMyService = Intent(p0, MyService::class.java)
-                        p0.stopService(intentMyService)
-                    }
+            if (incomingNumber != "null") {
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    CustomView(p0!!, incomingNumber).show()
+                } else {
+                    CustomView(p0!!, incomingNumber).show()
                 }
             }
-        }, PhoneStateListener.LISTEN_CALL_STATE)
+        } else if (phone_state == "IDLE") {
+            Log.d("TAG", "Конец звонка")
+            CustomView(p0!!, incomingNumber).clearView()
+        }
+    }
+
+    inner class CustomView(private val context: Context, private val incoming_number: String) {
+
+        lateinit var manager: WindowManager
+        lateinit var params: WindowManager.LayoutParams
+        lateinit var rootView: CardView
+
+        // Создание окна
+        fun createView() {
+            manager = context.getSystemService(Service.WINDOW_SERVICE) as WindowManager
+
+            params = WindowManager.LayoutParams(
+                if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
+                    WindowManager.LayoutParams.TYPE_APPLICATION_OVERLAY
+                } else {
+                    WindowManager.LayoutParams.TYPE_SYSTEM_ERROR
+                }, //WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
+                WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
+                        WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+                        WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
+                        WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+            )
+
+            // Настраиваем ширину и высоту макета
+            params.width = WindowManager.LayoutParams.WRAP_CONTENT
+            params.height = WindowManager.LayoutParams.WRAP_CONTENT
+
+            // Система выбирает формат, поддерживающий полупрозрачность (много альфа-бит)
+            params.format = PixelFormat.TRANSLUCENT
+
+            // Настраиваем расположение окна
+            params.gravity = Gravity.TOP
+            params.x = 235 // Координата по горизонтали
+            params.y = 200 // Координата по вертикали
+
+            rootView = LayoutInflater.from(context)
+                .inflate(R.layout.dialog_incoming_call, null) as CardView
+        }
+
+        // Перемещение окна
+        @SuppressLint("ClickableViewAccessibility")
+        fun movingTheWindow() {
+            rootView.findViewById<CardView>(R.id.dialog_incoming_call)
+                .setOnTouchListener(object : View.OnTouchListener {
+                    override fun onTouch(p0: View?, p1: MotionEvent?): Boolean {
+                        if (p1?.action == MotionEvent.ACTION_MOVE) {
+                            // Обрабатываем позицию касания и обноваляем позицию/размер Layout'а
+                            params.y = p1.getRawY().toInt()
+                            params.x = p1.getRawX().toInt()
+                            manager.updateViewLayout(rootView, params)
+                        }
+                        return true
+                    }
+                })
+        }
+
+        // - - - Тут должна быть работа с БД - - -
+        fun checkDatabase() {
+            var name: String = when (incoming_number) {
+                context.getString(R.string.number_dmitry) -> context.getString(R.string.name_dmitry)
+                context.getString(R.string.number_ekaterina) -> context.getString(R.string.name_ekaterina)
+                else -> "Неизвестный номер"
+            }
+
+            // Устанавливаем имя и номер звонящего
+            rootView.name.text = name
+            rootView.number.text = incoming_number
+
+            Toast.makeText(context, "Тебе звонит: $name", Toast.LENGTH_LONG).show()
+        }
+
+        // Показываем окно
+        fun show() {
+            // Создаём окно
+            createView()
+
+            // Показываем окно
+            manager.addView(rootView, params)
+
+            // Проверяем базу данных
+            checkDatabase()
+
+            // Включаем перемещение окна
+            movingTheWindow()
+        }
+
+        // Удаляем окно
+        fun clearView() {
+
+            rootView.removeAllViews()
+        }
     }
 }
-
-
-// - - - Другой способ - - -
-//if (p1?.action.equals("android.intent.action.PHONE_STATE")) {
-//    // Получаем состояние телефона
-//    val phone_state: String? = p1?.getStringExtra(TelephonyManager.EXTRA_STATE)
-//
-//    // Если состояние телефона - звонок, то выполняем код
-//    // if (phone_state == p1?.getStringExtra(TelephonyManager.EXTRA_STATE_RINGING)) - гугл говорит,
-//    // что должен быть этот код, но мне присылает null, а должен "RINGING". Поэтому я проверяю вручную:
-//    if (phone_state == "RINGING") {
-//        var incoming_number: String =
-//            p1.getStringExtra(TelephonyManager.EXTRA_INCOMING_NUMBER)
-//                .toString() // Получаем входящий номер
-//        Log.d("TAG", "Number: $incoming_number")
-//
-//        // Запускаем сервис отображения окна
-//        val intentMyService = Intent(p0, MyService::class.java)
-//        intentMyService.putExtra("incoming_number", incoming_number)
-//
-//        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.O) {
-//            p0?.startForegroundService(intentMyService)
-//        } else {
-//            p0?.startService(intentMyService)
-//        }
-//    } else if (phone_state == "IDLE") {
-//        // Останавливаем сервис отображения окна
-//        val intentMyService = Intent(p0, MyService::class.java)
-//        p0?.stopService(intentMyService)
-//    }
-//}
