@@ -17,6 +17,7 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
 import com.wexberry.incomingcall.receiver.PhoneStateChangedReceiver
+import com.wexberry.incomingcall.workers.RestartReceiverWorker
 import kotlinx.android.synthetic.main.activity_main.*
 
 
@@ -32,6 +33,7 @@ class MainActivity : AppCompatActivity() {
     private fun initFunc() {
         btnClick() // Обработчик нажатия кнопок
         registerReceived() // Динамическая регистрация Ресивера
+        startWork() // Запускаем нашу задачу по перезапуску ресивера
         permissionStatus() // Запрос разрешения (Андроид 6+)
     }
 
@@ -52,8 +54,13 @@ class MainActivity : AppCompatActivity() {
         }
     }
 
+    // Запускаем нашу задачу по перезапуску ресивера
+    private fun startWork() {
+        RestartReceiverWorker.startWork(this)
+    }
+
     // Динамическая регистрация Ресивера
-    private fun registerReceived() {
+    fun registerReceived() {
         val receiver = PhoneStateChangedReceiver()
         val intentFilter = IntentFilter()
 
