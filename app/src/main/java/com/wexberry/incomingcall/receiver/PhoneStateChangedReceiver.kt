@@ -13,6 +13,7 @@ import android.view.*
 import android.widget.Toast
 import androidx.cardview.widget.CardView
 import com.wexberry.incomingcall.R
+import kotlinx.android.synthetic.*
 import kotlinx.android.synthetic.main.dialog_incoming_call.view.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.GlobalScope
@@ -64,9 +65,9 @@ open class PhoneStateChangedReceiver : BroadcastReceiver() {
                 WindowManager.LayoutParams.TYPE_SYSTEM_ERROR
             }, //WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE,
             WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL or
-                    WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
-                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED or
-                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
+                   //WindowManager.LayoutParams.FLAG_TURN_SCREEN_ON or
+                    WindowManager.LayoutParams.FLAG_SHOW_WHEN_LOCKED //or
+//                    WindowManager.LayoutParams.FLAG_DISMISS_KEYGUARD
         )
         var rootView: CardView = LayoutInflater.from(context).inflate(R.layout.dialog_incoming_call, null) as CardView
 
@@ -133,6 +134,10 @@ open class PhoneStateChangedReceiver : BroadcastReceiver() {
 
         // Удаляем окно
         fun clearView() {
+            manager.removeView(rootView)
+            manager.removeViewImmediate(rootView)
+            manager.updateViewLayout(null, null)
+            rootView.findViewById<CardView>(R.id.dialog_incoming_call).clearFindViewByIdCache()
             Log.d("DA", "CustomView.clearView: ")
             rootView.removeAllViews()
         }
