@@ -25,7 +25,7 @@ class RestartReceiverWorker(context: Context, workerParams: WorkerParameters) : 
 
         // 1. Метод для создания PeriodicWorkRequest с интервалом повторения 3 часа
         private fun createWorkRequest(data: Data): PeriodicWorkRequest {
-            return PeriodicWorkRequest.Builder(RestartReceiverWorker::class.java, 3, TimeUnit.HOURS)
+            return PeriodicWorkRequest.Builder(RestartReceiverWorker::class.java, 20, TimeUnit.MINUTES)
                 .setInputData(data)
                 .addTag(RESTART_RECEIVER_WORKER_TAG) // Устанавливаем TAG по которому мы можем запускать/останавливать задачу
                 .build()
